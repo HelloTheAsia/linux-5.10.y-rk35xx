@@ -127,6 +127,16 @@
         status = "okay";
     };
 
+    dc_12v: dc-12v {
+        u-boot,dm-pre-reloc;
+        compatible = "regulator-fixed";
+        regulator-name = "dc_12v";
+        regulator-always-on;
+        regulator-boot-on;
+        regulator-min-microvolt = <12000000>;
+        regulator-max-microvolt = <12000000>;
+    };
+
     /* labeled +3.3v For PCIe only in schematic */
     vcc3v3_pcie: vcc3v3-pcie-regulator {
         u-boot,dm-pre-reloc;
