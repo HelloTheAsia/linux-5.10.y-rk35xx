@@ -12,10 +12,6 @@
 #include "rk3568-linux.dtsi"
 
 / {
-/*
-	model = "QNAP TS-416 (SDK)";
-	compatible = "rockchip,rk3568-evb1-ddr4-v10", "rockchip,rk3568";
-*/	
     model = "Rockchip RK3568 DG NAS LITE";
 	compatible = "rockchip,DG-nas-lite", "rockchip,rk3568";
 
@@ -584,7 +580,7 @@ key 64    TV_MEDIA_PLAY
 	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <3 RK_PC1 3 &pcfg_pull_none>;
-	spi_dev@00 {
+	spi_dev@0 {
 		compatible = "rockchip,spidev";
 		reg = <0x0>;
 		spi-max-frequency = <0xb71b00>;
