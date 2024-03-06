@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0
 dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399-fine3399.dtb
-dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3568-nas-lite.dtb
+dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3568-dg-nas-lite.dtb
 dtb-$(CONFIG_ARCH_ROCKCHIP) += px30-evb.dtb
 dtb-$(CONFIG_ARCH_ROCKCHIP) += px30-evb-ddr3-v10.dtb
 dtb-$(CONFIG_ARCH_ROCKCHIP) += px30-evb-ddr3-v10-avb.dtb
