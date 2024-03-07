@@ -1,0 +1,419 @@
+#include "rk3328-evb.dts"
+
+/ {
+	chosen {
+		bootargs = "rockchip_jtag earlyprintk=uart8250-32bit,0xff130000 swiotlb=1 kpti=0 console=ttyFIQ0 rw root=PARTUUID=614e0000-0000 rootfstype=ext4 rootwait systemd.gpt_auto=0 systemd.unified_cgroup_hierarchy=0 apparmor=1 security=apparmor lsm=lockdown,yama,apparmor";
+	};
+
+	/*
+            5v_en {
+                    compatible = "5v-en-gpio";
+    //                3v3_power_en = <&gpio2 RK_PD2 GPIO_ACTIVE_HIGH>;
+                    usb_5v_en = <&gpio3 RK_PA5 GPIO_ACTIVE_HIGH>;
+                    usb_en = <&gpio3 RK_PA7 GPIO_ACTIVE_HIGH>;
+                    hub_rst = <&gpio2 RK_PA3 GPIO_ACTIVE_HIGH>;
+                    fan_open = <&gpio2 RK_PC4 GPIO_ACTIVE_HIGH>;
+                    rp_not_deep_leep = <1>;
+                    status = "okay";
+            };
+    */
+	rp_gpio{
+		status = "okay";
+		compatible = "rp_gpio";
+		/*
+                        gpio0a0 {
+                                gpio_num = <&gpio0 RK_PA0 GPIO_ACTIVE_LOW>;
+                                gpio_function = <0>;            //0:output 1:input
+                        };
+        */
+		gpio0a2 {
+			gpio_num = <&gpio0 RK_PA2 GPIO_ACTIVE_HIGH>;
+			gpio_function = <0>;            //0:output 1:input
+		};
+
+		// wifi power pin
+		gpio1c2 {
+			gpio_num = <&gpio1 RK_PC2 GPIO_ACTIVE_HIGH>;
+			gpio_function = <0>;            //0:output 1:input
+		};
+
+		gpio1d1 {
+			gpio_num = <&gpio1 RK_PD1 GPIO_ACTIVE_HIGH>;
+			gpio_function = <0>;            //0:output 1:input
+		};
+		/*
+                        gpioi0d6 {
+                                gpio_num = <&gpio0 RK_PD6 GPIO_ACTIVE_LOW>;
+                                gpio_function = <0>;            //0:output 1:input
+                        };
+        */
+		/*
+                        led {
+                                gpio_num = <&gpio2 RK_PC5 GPIO_ACTIVE_HIGH>;
+                                gpio_function = <3>;            //0:output 1:input
+                        };
+                        gpio2b7 {
+                                gpio_num = <&gpio2 RK_PB7 GPIO_ACTIVE_HIGH>;
+                                gpio_function = <0>;            //0:output 1:input
+                        };
+                        gpio2c2 {
+                                gpio_num = <&gpio2 RK_PC2 GPIO_ACTIVE_HIGH>;
+                                gpio_function = <0>;            //0:output 1:input
+                        };
+                        gpio2c1 {
+                                gpio_num = <&gpio2 RK_PC1 GPIO_ACTIVE_HIGH>;
+                                gpio_function = <0>;            //0:output 1:input
+                        };
+                        gpio2c0 {
+                                gpio_num = <&gpio2 RK_PC0 GPIO_ACTIVE_HIGH>;
+                                gpio_function = <0>;            //0:output 1:input
+                        };
+                        gpio2c7 {
+                                gpio_num = <&gpio2 RK_PC7 GPIO_ACTIVE_HIGH>;
+                                gpio_function = <0>;            //0:output 1:input
+                        };
+                        gpio2c6 {
+                                gpio_num = <&gpio2 RK_PC6 GPIO_ACTIVE_HIGH>;
+                                gpio_function = <0>;            //0:output 1:input
+                        };
+                        gpio2c3 {
+                                gpio_num = <&gpio2 RK_PC3 GPIO_ACTIVE_HIGH>;
+                                gpio_function = <0>;            //0:output 1:input
+                                //gpio_event = <KEY_F14>;
+                                //send_mode = <0>;
+                        };
+        */
+	};
+	/*
+            sdpw:gpio-leds{
+            compatible = "gpio-leds";
+
+                    sdpower {
+                gpios = <&gpio0 30 GPIO_ACTIVE_LOW>;
+                label = "sdpower";
+                default-state = "on";
+            };
+            };
+    */
+
+	keys: gpio-keys {
+		compatible = "gpio-keys";
+
+		button@0 {
+			gpio-key,wakeup = <1>;
+			gpios = <&gpio1 7 GPIO_ACTIVE_LOW>;
+			label = "ResetKey";
+			linux,code = <100>;
+		};
+
+		/*
+                button@1 {
+                    gpio-key,wakeup = <1>;
+                    gpios = <&gpio3 0 GPIO_ACTIVE_LOW>;
+                    label = "UserKey";
+                    linux,code = <101>;
+                    };
+        */
+
+	};
+
+	/*
+            rockchip_audio: rockchip_audio {
+                    compatible = "rockchip,rk322xh-audio", "rockchip,rk322x-audio";
+                    dais {
+                            dai0 {
+                                    audio-codec = <&codec>;
+                                    audio-controller = <&i2s1>;
+                                    format = "i2s";
+                            };
+                    };
+            };
+
+            hdmi-sound {
+                    compatible = "simple-audio-card";
+                    simple-audio-card,format = "i2s";
+                    simple-audio-card,mclk-fs = <128>;
+                    simple-audio-card,name = "rockchip,hdmi";
+                    simple-audio-card,cpu {
+                            sound-dai = <&i2s0>;
+                    };
+                    simple-audio-card,codec {
+                            sound-dai = <&hdmi>;
+                    };
+            };
+
+            spdif-sound {
+              status = "disabled";
+                    compatible = "simple-audio-card";
+                    simple-audio-card,name = "rockchip,spdif";
+                    simple-audio-card,cpu {
+                            sound-dai = <&spdif>;
+                    };
+                    simple-audio-card,codec {
+                            sound-dai = <&spdif_out>;
+                    };
+            };
+
+            spdif_out: spdif-out {
+              status = "disabled";
+                    compatible = "linux,spdif-dit";
+                    #sound-dai-cells = <0>;
+            };
+
+            sound {
+                    compatible = "simple-audio-card";
+                    simple-audio-card,format = "i2s";
+                    simple-audio-card,mclk-fs = <256>;
+                    simple-audio-card,name = "rockchip,rk3328";
+                    simple-audio-card,cpu {
+                            sound-dai = <&i2s1>;
+                    };
+                    simple-audio-card,codec {
+                            sound-dai = <&codec>;
+                    };
+            };
+    */
+
+};
+
+/*
+&spdif {
+        #sound-dai-cells = <0>;
+        status = "disabled";
+};
+*/
+
+&codec {
+	rk3328-codec-hp-gpiomute;
+	#sound-dai-cells = <0>;
+	status = "okay";
+};
+
+&i2c0 {
+	status = "okay";
+	charger: bq25895@6A {
+		compatible = "ti,bq25890";
+		reg = <0x6A>;
+		bq25890_irq-gpios = <&gpio0 RK_PD6 GPIO_ACTIVE_LOW>;
+
+		ti,battery-regulation-voltage = <4256000>;
+		ti,charge-current = <1088000>;
+		ti,termination-current = <128000>;
+		ti,precharge-current = <128000>;
+		ti,minimum-sys-voltage = <3000000>;
+		ti,boost-voltage = <5126000>;
+		ti,boost-max-current = <1400000>;
+
+		ti,use-ilim-pin;
+		ti,thermal-regulation-threshold = <100>;
+	};
+	battery: bq27546@55 {
+		compatible = "ti,bq27546";
+		reg = <0x55>;
+	};
+	/*
+        tm1929@23 {
+            status = "okay";
+            compatible = "";
+            reg = <0x23>;
+        };
+    */
+
+	ileds: i2c-leds {
+		compatible = "tm,tm1929";
+		reg = <0x23>;
+		/* clock-mode = /bits/ 8 <0>; */ /* LP55XX_CLOCK_AUTO */
+		/* enable-gpio = <&gpio2 9 GPIO_ACTIVE_HIGH>; */ /* 41 */
+		status = "okay";
+		lable = "tm1929";
+		led0g {
+			chan-name = "led0:green";
+			led-cur = /bits/ 8 <50>;
+			max-cur = /bits/ 8 <100>;
+			linux,default-trigger = "none";
+		};
+		led0b {
+			chan-name = "led0:blue";
+			led-cur = /bits/ 8 <50>;
+			max-cur = /bits/ 8 <100>;
+			linux,default-trigger = "none";
+		};
+		led0r {
+			chan-name = "led0:red";
+			led-cur = /bits/ 8 <50>;
+			max-cur = /bits/ 8 <100>;
+			linux,default-trigger = "none";
+		};
+		led1g {
+			chan-name = "led1:green";
+			led-cur = /bits/ 8 <50>;
+			max-cur = /bits/ 8 <100>;
+			linux,default-trigger = "none";
+		};
+		led1b {
+			chan-name = "led1:blue";
+			led-cur = /bits/ 8 <50>;
+			max-cur = /bits/ 8 <100>;
+			linux,default-trigger = "none";
+		};
+		led1r {
+			chan-name = "led1:red";
+			led-cur = /bits/ 8 <50>;
+			max-cur = /bits/ 8 <100>;
+			linux,default-trigger = "none";
+		};
+		led2g {
+			chan-name = "led2:green";
+			led-cur = /bits/ 8 <50>;
+			max-cur = /bits/ 8 <100>;
+			linux,default-trigger = "none";
+		};
+		led2b {
+			chan-name = "led2:blue";
+			led-cur = /bits/ 8 <50>;
+			max-cur = /bits/ 8 <100>;
+			linux,default-trigger = "none";
+		};
+		led2r {
+			chan-name = "led2:red";
+			led-cur = /bits/ 8 <50>;
+			max-cur = /bits/ 8 <100>;
+			linux,default-trigger = "none";
+		};
+		led3r {
+			chan-name = "led3:red";
+			led-cur = /bits/ 8 <50>;
+			max-cur = /bits/ 8 <100>;
+			linux,default-trigger = "none";
+		};
+		led3b {
+			chan-name = "led3:blue";
+			led-cur = /bits/ 8 <50>;
+			max-cur = /bits/ 8 <100>;
+			linux,default-trigger = "none";
+		};
+		led3g {
+			chan-name = "led3:green";
+			led-cur = /bits/ 8 <50>;
+			max-cur = /bits/ 8 <100>;
+			linux,default-trigger = "none";
+		};
+		led4r {
+			chan-name = "led5:red";
+			led-cur = /bits/ 8 <50>;
+			max-cur = /bits/ 8 <100>;
+			linux,default-trigger = "none";
+		};
+		led4b {
+			chan-name = "led5:blue";
+			led-cur = /bits/ 8 <50>;
+			max-cur = /bits/ 8 <100>;
+			linux,default-trigger = "none";
+		};
+		led4g {
+			chan-name = "led5:green";
+			led-cur = /bits/ 8 <50>;
+			max-cur = /bits/ 8 <100>;
+			linux,default-trigger = "none";
+		};
+		led5r {
+			chan-name = "led4:red";
+			led-cur = /bits/ 8 <50>;
+			max-cur = /bits/ 8 <100>;
+			linux,default-trigger = "none";
+		};
+		led5b {
+			chan-name = "led4:blue";
+			led-cur = /bits/ 8 <50>;
+			max-cur = /bits/ 8 <100>;
+			linux,default-trigger = "none";
+		};
+		led5g {
+			chan-name = "led4:green";
+			led-cur = /bits/ 8 <50>;
+			max-cur = /bits/ 8 <100>;
+			linux,default-trigger = "none";
+		};
+	};
+};
+
+
+&i2c1 {
+	status = "okay";
+	rtc@51 {
+		status = "okay";
+		compatible = "nxp,pcf85063";
+		reg = <0x51>;
+	};
+};
+
+
+
+&uart0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart0_xfer &uart0_cts &uart0_rts>;
+	status = "okay";
+};
+
+&uart1 {
+	status = "okay";
+};
+
+
+/* pwj, user mode SPI */
+&spi0 {
+	status = "okay";
+	max-frequency = <24000000>;
+	spi_test@00 {
+		compatible ="rockchip,spidev";
+		reg = <0>;
+		spi-max-frequency = <8000000>;  /* lora SX1302 max tSCK 100ns, i.e. 10000000 */
+	};
+};
+
+
+/*
+&hdmi {
+        status = "okay";
+        rockchip,phy_table =
+                <165000000 0 0 7 8 8 8>,
+                <340000000 8 13 11 13 13 13>,
+                <594000000 8 0 16 26 26 26>;
+};
+
+*/
+
+
+&vepu {
+	status = "okay";
+};
+
+
+&h265e {
+	status = "okay";
+};
+
+&rkvdec {
+	status = "okay";
+};
+
+&iep {
+	status = "okay";
+};
+
+
+&vop {
+	status = "okay";
+};
+
+&rga {
+	status = "okay";
+};
+
+&tsadc {
+	status = "okay";
+};
+
+&gpu {
+	status = "okay";
+};
