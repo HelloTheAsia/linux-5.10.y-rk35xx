@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0
 dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399-fine3399.dtb
+dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3566-panther-x2.dtb
 dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3568-dg-nas-lite.dtb
 #dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3328-dsgw-210.dtb
 dtb-$(CONFIG_ARCH_ROCKCHIP) += px30-evb.dtb
@@ -134,7 +135,6 @@ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3566-evb3-ddr3-v10.dtb
 dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3566-evb3-ddr3-v10-linux.dtb
 dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3566-evb5-lp4x-v10.dtb
 dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3566-jp-tvbox.dtb
-dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3566-panther-x2.dtb
 dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3566-radxa-cm3-io.dtb
 dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3566-radxa-cm3-rpi-cm4-io.dtb
 dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3566-radxa-cm3-sodimm-io.dtb
