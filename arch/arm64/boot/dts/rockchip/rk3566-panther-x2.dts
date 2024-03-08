@@ -6,8 +6,10 @@
 /dts-v1/;
 
 #include <dt-bindings/gpio/gpio.h>
-#include <dt-bindings/input/input.h>
+#include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/pinctrl/rockchip.h>
+#include <dt-bindings/input/rk-input.h>
+#include <dt-bindings/display/rockchip_vop.h>
 #include "rk3566.dtsi"
 
 / {
@@ -16,13 +18,34 @@
 
     aliases {
         ethernet0 = &gmac1;
-        mmc0 = &sdmmc0;
-        mmc1 = &sdhci;
+        mmc0 = &sdhci;
+        mmc1 = &sdmmc0;
         mmc2 = &sdmmc1;
     };
 
     chosen: chosen {
-        stdout-path = "serial2:1500000n8";
+        bootargs = "earlycon=uart8250,mmio32,0xfe660000 console=ttyFIQ0 root=PARTUUID=614e0000-0000 rw rootwait";
+    };
+
+    fiq_debugger: fiq-debugger {
+        compatible = "rockchip,fiq-debugger";
+        rockchip,serial-id = <2>;
+        rockchip,wake-irq = <0>;
+        /* If enable uart uses irq instead of fiq */
+        rockchip,irq-mode-enable = <1>;
+        rockchip,baudrate = <1500000>;  /* Only 115200 and 1500000 */
+        interrupts = <GIC_SPI 252 IRQ_TYPE_LEVEL_LOW>;
+        pinctrl-names = "default";
+        pinctrl-0 = <&uart2m0_xfer>;
+        status = "okay";
+    };
+
+    debug: debug@fd904000 {
+        compatible = "rockchip,debug";
+        reg = <0x0 0xfd904000 0x0 0x1000>,
+              <0x0 0xfd905000 0x0 0x1000>,
+              <0x0 0xfd906000 0x0 0x1000>,
+              <0x0 0xfd907000 0x0 0x1000>;
     };
 
     gmac1_clkin: external-gmac1-clock {
@@ -34,7 +57,6 @@
 
     leds {
         compatible = "gpio-leds";
-        //Corresponds to the actual order
         led_pwr: led-pwr {
             label = "led-pwr";
             default-state = "on";
@@ -77,26 +99,26 @@
         };
     };
 
-    vbus: vbus-regulator {
+    dc_12v: dc-12v {
         compatible = "regulator-fixed";
-        regulator-name = "vbus";
+        regulator-name = "dc_12v";
         regulator-always-on;
         regulator-boot-on;
-        regulator-min-microvolt = <5000000>;
-        regulator-max-microvolt = <5000000>;
+        regulator-min-microvolt = <12000000>;
+        regulator-max-microvolt = <12000000>;
     };
 
-    vcc5v0_sys: vcc5v0-sys-regulator {
+    vcc5v0_sys: vcc5v0-sys {
         compatible = "regulator-fixed";
         regulator-name = "vcc5v0_sys";
         regulator-always-on;
         regulator-boot-on;
         regulator-min-microvolt = <5000000>;
         regulator-max-microvolt = <5000000>;
-        vin-supply = <&vbus>;
+        vin-supply = <&dc_12v>;
     };
 
-    vcc3v3_sys: vcc3v3-sys-regulator {
+    vcc3v3_sys: vcc3v3-sys {
         compatible = "regulator-fixed";
         regulator-name = "vcc3v3_sys";
         regulator-always-on;
@@ -126,6 +148,7 @@
         WIFI,host_wake_irq = <&gpio2 RK_PB2 GPIO_ACTIVE_HIGH>;
         status = "okay";
     };
+
 };
 
 &cpu0 {
@@ -144,37 +167,51 @@
     cpu-supply = <&vdd_cpu>;
 };
 
+&dfi {
+    status = "okay";
+};
+
+&dmc {
+    center-supply = <&vdd_logic>;
+    status = "okay";
+};
+
 &gpu {
     mali-supply = <&vdd_gpu>;
     status = "okay";
 };
 
 &gmac1 {
-    assigned-clocks = <&cru SCLK_GMAC1_RX_TX>, <&cru SCLK_GMAC1_RGMII_SPEED>, <&cru SCLK_GMAC1>;
-    assigned-clock-parents = <&cru SCLK_GMAC1_RGMII_SPEED>, <&cru SCLK_GMAC1>, <&gmac1_clkin>;
-    clock_in_out = "input";
-    phy-supply = <&vcc_3v3>;
+    snps,reset-gpio = <&gpio3 RK_PA1 GPIO_ACTIVE_LOW>;
+    snps,reset-active-low;
+    /* Reset time is 20ms, 100ms for rtl8211f */
+    snps,reset-delays-us = <0 20000 100000>;
+
     phy-mode = "rgmii";
+    clock_in_out = "output";
+
+    assigned-clocks = <&cru SCLK_GMAC1_RX_TX>, <&cru SCLK_GMAC1>;
+    assigned-clock-parents = <&cru SCLK_GMAC1_RGMII_SPEED>, <&cru CLK_MAC1_2TOP>;
+    assigned-clock-rates = <0>, <125000000>;
+
     pinctrl-names = "default";
     pinctrl-0 = <&gmac1m0_miim
                  &gmac1m0_tx_bus2
                  &gmac1m0_rx_bus2
                  &gmac1m0_rgmii_clk
-                 &gmac1m0_clkinout
                  &gmac1m0_rgmii_bus>;
-    snps,reset-gpio = <&gpio3 RK_PA1 GPIO_ACTIVE_LOW>;
-    snps,reset-active-low;
-    /* Reset time is 20ms, 100ms for rtl8211f, also works well here */
-    snps,reset-delays-us = <0 20000 100000>;
-    tx_delay = <0x30>;
-    rx_delay = <0x10>;
+
+    tx_delay = <0x41>;
+    rx_delay = <0x2e>;
+
     phy-handle = <&rgmii_phy1>;
     status = "okay";
 };
+
 &mdio1 {
-    rgmii_phy1: ethernet-phy@0 {
+    rgmii_phy1: ethernet-phy@1 {
         compatible = "ethernet-phy-ieee802.3-c22";
-        reg = <0>;
+        reg = <0x1>;
         status = "okay";
     };
 };
@@ -339,7 +376,7 @@
                 regulator-max-microvolt = <3300000>;
                 regulator-name = "vccio_sd";
                 regulator-state-mem {
-                    regulator-off-in-suspend;
+                    regulator-on-in-suspend;
                 };
             };
 
@@ -389,6 +426,8 @@
             };
 
             vcc_3v3: SWITCH_REG1 {
+                regulator-always-on;
+                regulator-boot-on;
                 regulator-name = "vcc_3v3";
                 regulator-state-mem {
                     regulator-off-in-suspend;
@@ -396,8 +435,9 @@
             };
 
             vcc3v3_sd: SWITCH_REG2 {
+                regulator-always-on;
+                regulator-boot-on;
                 regulator-name = "vcc3v3_sd";
-                status = "disabled";
                 regulator-state-mem {
                     regulator-on-in-suspend;
                 };
@@ -419,6 +459,7 @@
 };
 
 &pinctrl {
+
     sdio-pwrseq {
         wifi_enable_h: wifi-enable-h {
             rockchip,pins = <2 RK_PB1 RK_FUNC_GPIO &pcfg_pull_none>;
@@ -491,37 +532,45 @@
 
 &sdhci {
     bus-width = <8>;
+    max-frequency = <200000000>;
+    no-sdio;
+    no-sd;
     mmc-hs200-1_8v;
+    supports-emmc;
     non-removable;
-    vmmc-supply = <&vcc_3v3>;
-    vqmmc-supply = <&vcc_1v8>;
     status = "okay";
 };
 
 &sdmmc0 {
-    broken-cd;
     bus-width = <4>;
+    max-frequency = <150000000>;
+    cap-mmc-highspeed;
     cap-sd-highspeed;
+    supports-sd;
     disable-wp;
     pinctrl-names = "default";
     pinctrl-0 = <&sdmmc0_bus4 &sdmmc0_clk &sdmmc0_cmd &sdmmc0_det>;
+    vmmc-supply = <&vcc3v3_sd>;
     vqmmc-supply = <&vccio_sd>;
     status = "okay";
 };
 
 &sdmmc1 {
-    supports-sdio;
+    #address-cells = <1>;
+    #size-cells = <0>;
     bus-width = <4>;
-    disable-wp;
+    max-frequency = <150000000>;
     cap-sd-highspeed;
+    sd-uhs-sdr104;
     cap-sdio-irq;
+    disable-wp;
+    supports-sdio;
+    non-removable;
     keep-power-in-suspend;
+    mmc-pwrseq = <&sdio_pwrseq>;
     pinctrl-names = "default";
     pinctrl-0 = <&sdmmc1_bus4 &sdmmc1_cmd &sdmmc1_clk>;
-    non-removable;
-    mmc-pwrseq = <&sdio_pwrseq>;
     status = "okay";
-
 };
 
 &tsadc {
@@ -531,7 +580,7 @@
 &uart1 {
     pinctrl-names = "default";
     pinctrl-0 = <&uart1m0_xfer &uart1m0_ctsn &uart1m0_rtsn>;
-    status = "okay";
+    status = "disabled";
 
     bluetooth {
         compatible = "brcm,bcm43438-bt";
@@ -549,14 +598,14 @@
 };
 
 &uart2 {
+    status = "disabled";
+};
+
+&usb_host0_ehci {
     status = "okay";
 };
 
 &usb_host0_ohci {
-    status = "okay";
-};
-
-&usb_host0_ehci {
     status = "okay";
 };
 
@@ -568,15 +617,29 @@
     status = "okay";
 };
 
-&vop {
-    assigned-clocks = <&cru DCLK_VOP0>, <&cru DCLK_VOP1>;
-    assigned-clock-parents = <&pmucru PLL_HPLL>, <&cru PLL_VPLL>;
+&u2phy0_otg {
     status = "okay";
 };
 
-&vop_mmu {
+&usbdrd_dwc3 {
+    dr_mode = "host";
+    extcon = <&usb2phy0>;
     status = "okay";
 };
+
+&usbdrd30 {
+    status = "okay";
+};
+
+&usbhost_dwc3 {
+    status = "okay";
+};
+
+&usbhost30 {
+    status = "okay";
+};
+
+// video output
 
 &hdmi {
     status = "disabled";
@@ -670,5 +733,15 @@
 };
 
 &vepu_mmu {
+    status = "okay";
+};
+
+&vop {
+    assigned-clocks = <&cru DCLK_VOP0>, <&cru DCLK_VOP1>, <&cru DCLK_VOP2>;
+    assigned-clock-parents = <&pmucru PLL_HPLL>, <&cru PLL_VPLL>, <&cru PLL_GPLL>;
+    status = "okay";
+};
+
+&vop_mmu {
     status = "okay";
 };
