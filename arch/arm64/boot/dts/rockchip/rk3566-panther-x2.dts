@@ -47,7 +47,7 @@
 
         led_wifi: led-wifi {
             label = "led-wifi";
-            default-state = "on";
+            default-state = "off";
             gpios = <&gpio0 RK_PD6 GPIO_ACTIVE_HIGH>;
             pinctrl-names = "default";
             pinctrl-0 = <&led_wifi_enable_h>;
@@ -57,7 +57,7 @@
 
         led_eth: led-eth {
             label = "led-eth";
-            default-state = "on";
+            default-state = "off";
             gpios = <&gpio0 RK_PD5 GPIO_ACTIVE_HIGH>;
             pinctrl-names = "default";
             pinctrl-0 = <&led_eth_enable_h>;
@@ -82,8 +82,8 @@
         regulator-name = "vbus";
         regulator-always-on;
         regulator-boot-on;
-        regulator-min-microvolt = <12000000>;
-        regulator-max-microvolt = <12000000>;
+        regulator-min-microvolt = <5000000>;
+        regulator-max-microvolt = <5000000>;
     };
 
     vcc5v0_sys: vcc5v0-sys-regulator {
@@ -126,6 +126,7 @@
         WIFI,host_wake_irq = <&gpio2 RK_PB2 GPIO_ACTIVE_HIGH>;
         status = "okay";
     };
+
 };
 
 &cpu0 {
@@ -172,9 +173,9 @@
     status = "okay";
 };
 &mdio1 {
-    rgmii_phy1: ethernet-phy@1 {
+    rgmii_phy1: ethernet-phy@0 {
         compatible = "ethernet-phy-ieee802.3-c22";
-        reg = <0x1>;
+        reg = <0>;
         status = "okay";
     };
 };
@@ -339,7 +340,7 @@
                 regulator-max-microvolt = <3300000>;
                 regulator-name = "vccio_sd";
                 regulator-state-mem {
-                    regulator-on-in-suspend;
+                    regulator-off-in-suspend;
                 };
             };
 
@@ -389,8 +390,6 @@
             };
 
             vcc_3v3: SWITCH_REG1 {
-                regulator-always-on;
-                regulator-boot-on;
                 regulator-name = "vcc_3v3";
                 regulator-state-mem {
                     regulator-off-in-suspend;
@@ -398,8 +397,6 @@
             };
 
             vcc3v3_sd: SWITCH_REG2 {
-                regulator-always-on;
-                regulator-boot-on;
                 regulator-name = "vcc3v3_sd";
                 status = "disabled";
                 regulator-state-mem {
@@ -495,45 +492,37 @@
 
 &sdhci {
     bus-width = <8>;
-    max-frequency = <200000000>;
-    no-sdio;
-    no-sd;
     mmc-hs200-1_8v;
-    supports-emmc;
     non-removable;
+    vmmc-supply = <&vcc_3v3>;
+    vqmmc-supply = <&vcc_1v8>;
     status = "okay";
 };
 
 &sdmmc0 {
+    broken-cd;
     bus-width = <4>;
-    max-frequency = <150000000>;
-    cap-mmc-highspeed;
     cap-sd-highspeed;
-    supports-sd;
     disable-wp;
     pinctrl-names = "default";
     pinctrl-0 = <&sdmmc0_bus4 &sdmmc0_clk &sdmmc0_cmd &sdmmc0_det>;
-    vmmc-supply = <&vcc3v3_sd>;
     vqmmc-supply = <&vccio_sd>;
     status = "okay";
 };
 
 &sdmmc1 {
-    #address-cells = <1>;
-    #size-cells = <0>;
-    bus-width = <4>;
-    max-frequency = <150000000>;
-    cap-sd-highspeed;
-    sd-uhs-sdr104;
-    cap-sdio-irq;
-    disable-wp;
     supports-sdio;
-    non-removable;
+    bus-width = <4>;
+    disable-wp;
+    cap-sd-highspeed;
+    cap-sdio-irq;
     keep-power-in-suspend;
-    mmc-pwrseq = <&sdio_pwrseq>;
     pinctrl-names = "default";
     pinctrl-0 = <&sdmmc1_bus4 &sdmmc1_cmd &sdmmc1_clk>;
+    non-removable;
+    mmc-pwrseq = <&sdio_pwrseq>;
     status = "okay";
+
 };
 
 &tsadc {
@@ -577,28 +566,6 @@
 };
 
 &u2phy0_host {
-    status = "okay";
-};
-
-&u2phy0_otg {
-    status = "okay";
-};
-
-&usbdrd_dwc3 {
-    dr_mode = "host";
-    extcon = <&usb2phy0>;
-    status = "okay";
-};
-
-&usbdrd30 {
-    status = "okay";
-};
-
-&usbhost_dwc3 {
-    status = "okay";
-};
-
-&usbhost30 {
     status = "okay";
 };
 
