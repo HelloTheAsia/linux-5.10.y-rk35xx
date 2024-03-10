@@ -73,7 +73,7 @@
 
         led_wifi: led-wifi {
             label = "led-wifi";
-            default-state = "off";
+            default-state = "on";
             gpios = <&gpio0 RK_PD6 GPIO_ACTIVE_HIGH>;
             pinctrl-names = "default";
             pinctrl-0 = <&led_wifi_enable_h>;
@@ -83,7 +83,7 @@
 
         led_eth: led-eth {
             label = "led-eth";
-            default-state = "off";
+            default-state = "on";
             gpios = <&gpio0 RK_PD5 GPIO_ACTIVE_HIGH>;
             pinctrl-names = "default";
             pinctrl-0 = <&led_eth_enable_h>;
