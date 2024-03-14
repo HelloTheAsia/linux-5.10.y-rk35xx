@@ -648,6 +648,16 @@
     clock-frequency = <100000>;
 };
 
+&i2c2 {
+    status = "okay";
+    clock-frequency = <100000>;
+};
+
+&i2c3 {
+    status = "okay";
+    clock-frequency = <100000>;
+};
+
 // video output
 
 &hdmi {
