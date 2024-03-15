@@ -61,6 +61,7 @@
 
     leds {
         compatible = "gpio-leds";
+
         led_pwr: led-pwr {
             label = "led-pwr";
             default-state = "on";
@@ -272,6 +273,7 @@
                 regulator-init-microvolt = <900000>;
                 regulator-ramp-delay = <6001>;
                 regulator-initial-mode = <0x2>;
+
                 regulator-state-mem {
                     regulator-on-in-suspend;
                     regulator-suspend-microvolt = <900000>;
@@ -287,6 +289,7 @@
                 regulator-init-microvolt = <900000>;
                 regulator-ramp-delay = <6001>;
                 regulator-initial-mode = <0x2>;
+
                 regulator-state-mem {
                     regulator-off-in-suspend;
                 };
@@ -297,6 +300,7 @@
                 regulator-boot-on;
                 regulator-initial-mode = <0x2>;
                 regulator-name = "vcc_ddr";
+
                 regulator-state-mem {
                     regulator-on-in-suspend;
                 };
@@ -310,6 +314,7 @@
                 regulator-init-microvolt = <900000>;
                 regulator-initial-mode = <0x2>;
                 regulator-name = "vdd_npu";
+
                 regulator-state-mem {
                     regulator-off-in-suspend;
                 };
@@ -321,6 +326,7 @@
                 regulator-boot-on;
                 regulator-min-microvolt = <1800000>;
                 regulator-max-microvolt = <1800000>;
+
                 regulator-state-mem {
                     regulator-on-in-suspend;
                     regulator-suspend-microvolt = <1800000>;
@@ -333,6 +339,7 @@
                 regulator-min-microvolt = <900000>;
                 regulator-max-microvolt = <900000>;
                 regulator-name = "vdda0v9_image";
+
                 regulator-state-mem {
                     regulator-on-in-suspend;
                     regulator-suspend-microvolt = <900000>;
@@ -345,6 +352,7 @@
                 regulator-min-microvolt = <900000>;
                 regulator-max-microvolt = <900000>;
                 regulator-name = "vdda_0v9";
+
                 regulator-state-mem {
                     regulator-off-in-suspend;
                 };
@@ -356,6 +364,7 @@
                 regulator-min-microvolt = <900000>;
                 regulator-max-microvolt = <900000>;
                 regulator-name = "vdda0v9_pmu";
+
                 regulator-state-mem {
                     regulator-on-in-suspend;
                     regulator-suspend-microvolt = <900000>;
@@ -368,6 +377,7 @@
                 regulator-min-microvolt = <3300000>;
                 regulator-max-microvolt = <3300000>;
                 regulator-name = "vccio_acodec";
+
                 regulator-state-mem {
                     regulator-off-in-suspend;
                 };
@@ -379,6 +389,7 @@
                 regulator-min-microvolt = <1800000>;
                 regulator-max-microvolt = <3300000>;
                 regulator-name = "vccio_sd";
+
                 regulator-state-mem {
                     regulator-on-in-suspend;
                 };
@@ -390,6 +401,7 @@
                 regulator-min-microvolt = <3300000>;
                 regulator-max-microvolt = <3300000>;
                 regulator-name = "vcc3v3_pmu";
+
                 regulator-state-mem {
                     regulator-on-in-suspend;
                     regulator-suspend-microvolt = <3300000>;
@@ -402,6 +414,7 @@
                 regulator-min-microvolt = <1800000>;
                 regulator-max-microvolt = <1800000>;
                 regulator-name = "vcca_1v8";
+
                 regulator-state-mem {
                     regulator-off-in-suspend;
                 };
@@ -413,6 +426,7 @@
                 regulator-min-microvolt = <1800000>;
                 regulator-max-microvolt = <1800000>;
                 regulator-name = "vcca1v8_pmu";
+
                 regulator-state-mem {
                     regulator-off-in-suspend;
                 };
@@ -424,6 +438,7 @@
                 regulator-min-microvolt = <1800000>;
                 regulator-max-microvolt = <1800000>;
                 regulator-name = "vcca1v8_image";
+
                 regulator-state-mem {
                     regulator-off-in-suspend;
                 };
@@ -433,6 +448,7 @@
                 regulator-always-on;
                 regulator-boot-on;
                 regulator-name = "vcc_3v3";
+
                 regulator-state-mem {
                     regulator-off-in-suspend;
                 };
@@ -442,6 +458,7 @@
                 regulator-always-on;
                 regulator-boot-on;
                 regulator-name = "vcc3v3_sd";
+
                 regulator-state-mem {
                     regulator-on-in-suspend;
                 };
@@ -455,10 +472,10 @@
     pinctrl-names = "default";
     pinctrl-0 = <&i2s1m1_sclktx &i2s1m1_sclkrx
                  &i2s1m1_lrcktx &i2s1m1_lrckrx
-                 &i2s1m1_sdi0   &i2s1m1_sdi1
-                 &i2s1m1_sdi2   &i2s1m1_sdi3
-                 &i2s1m1_sdo0   &i2s1m1_sdo1
-                 &i2s1m1_sdo2   &i2s1m1_sdo3>;
+                 &i2s1m1_sdi0 &i2s1m1_sdi1
+                 &i2s1m1_sdi2 &i2s1m1_sdi3
+                 &i2s1m1_sdo0 &i2s1m1_sdo1
+                 &i2s1m1_sdo2 &i2s1m1_sdo3>;
     status = "disabled";
 };
 
@@ -647,6 +664,21 @@
     status = "okay";
     clock-frequency = <100000>;
 };
+
+&spi1 {
+    status = "okay";
+    //assigned-clock-rates = <200000000>; //默认不用配置，SPI 设备工作时钟
+    max-freq = <48000000>; /* spi internal clk, don't modify */
+    //dma-names = "tx","rx"; //使能DMA模式
+    //rx-sample-delay-ns = <10>; //默认不用配置，读采样延时
+    spi_dev@0 {
+        compatible = "rockchip,spidev";
+        reg = <0>;
+        spi-max-frequency = <12000000>;
+        spi-lsb-first; //IO 先传输 lsb
+    };
+};
+
 
 // video output
 
