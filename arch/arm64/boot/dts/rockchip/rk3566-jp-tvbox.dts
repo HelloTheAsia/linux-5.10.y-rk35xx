@@ -654,11 +654,18 @@
 	status = "okay";
 };
 
+&ethernet {
+	status = "okay";
+	phy-mode = "rmii";
+	phy-handle = <&ethphy>;
+};
+
 &mdio1 {
-	rgmii_phy1: ethernet-phy@0 {
-		compatible = "ethernet-phy-ieee802.3-c22";
-		status = "okay";
-		reg = <0x0>;
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&eth_pins>;
+	ethphy: ethernet-phy@1 {
+		reg = <1>;
 	};
 };
 
