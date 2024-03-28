@@ -589,42 +589,24 @@
 	status = "okay";
 
 	pinctrl-names = "default";
-	phy-mode = "rgmii";
-
-/* output
-	pinctrl-0 = <&gmac1m0_miim
-		     &gmac1m0_tx_bus2_level3
-		     &gmac1m0_rx_bus2
-		     &gmac1m0_rgmii_clk_level2
-		     &gmac1m0_rgmii_bus_level3>;
-	clock_in_out = "output";
-	assigned-clocks = <&cru SCLK_GMAC1_RX_TX>, <&cru SCLK_GMAC1>;
-	assigned-clock-parents = <&cru SCLK_GMAC1_RGMII_SPEED>, <&cru CLK_MAC1_2TOP>;
-	assigned-clock-rates = <0>, <125000000>;
-*/
+	phy-mode = "mii";
 
 	pinctrl-0 = <&gmac1m0_miim
-		     &gmac1m0_tx_bus2
-		     &gmac1m0_rx_bus2
-	 	     &gmac1m0_rgmii_clk
-		     &gmac1m0_rgmii_bus
-		     &gmac1m0_clkinout>;
+				 &gmac1m0_tx_bus2
+				 &gmac1m0_rx_bus2
+				 &gmac1m0_mii_clk
+				 &gmac1m0_mii_bus
+				 &gmac1m0_clkinout>;
 
 	clock_in_out = "input";
-	assigned-clocks = <&cru SCLK_GMAC1_RX_TX>, <&cru SCLK_GMAC1>;
-	assigned-clock-parents = <&cru SCLK_GMAC1_RGMII_SPEED>, <&gmac1_clkin>;
+	assigned-clocks = <&cru SCLK_GMAC1_RX_TX>;
+	assigned-clock-parents = <&cru SCLK_GMAC1_MII_SPEED>;
+	assigned-clock-rates = <25000000>;  // 25MHz for 100Mb ethernet
 
-	//tx_delay = <0x4c>;
-	//rx_delay = <0x30>;
-	tx_delay = <0x3f>;
-	rx_delay = <0x3f>;
+	tx_delay = <0x30>;  // 为你硬件合适的值
+	rx_delay = <0x30>;  // 为你硬件合适的值
 
-	snps,reset-gpio = <&gpio3 RK_PA1 GPIO_ACTIVE_LOW>;
-	snps,reset-active-low;
-	/* Reset time is 20ms, 100ms for rtl8211f */
-	snps,reset-delays-us = <0 20000 100000>;
-
-	phy-handle = <&rgmii_phy1>;
+	phy-handle = <&mii_phy1>; // 修改对应的PHY标签
 	phy-supply = <&vcc_3v3>;
 };
 
@@ -652,21 +634,6 @@
 
 &jpegd_mmu {
 	status = "okay";
-};
-
-&ethernet {
-	status = "okay";
-	phy-mode = "rmii";
-	phy-handle = <&ethphy>;
-};
-
-&mdio1 {
-	status = "okay";
-	pinctrl-names = "default";
-	pinctrl-0 = <&eth_pins>;
-	ethphy: ethernet-phy@1 {
-		reg = <1>;
-	};
 };
 
 &mpp_srv {
