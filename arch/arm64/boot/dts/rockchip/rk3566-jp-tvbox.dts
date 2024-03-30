@@ -585,29 +585,34 @@
 	status = "okay";
 };
 
-&gmac1 {
+&gmac1_clkin{
+	clock-frequency = <50000000>;
 	status = "okay";
+};
 
-	pinctrl-names = "default";
-	phy-mode = "mii";
-
-	pinctrl-0 = <&gmac1m0_miim
-				 &gmac1m0_tx_bus2
-				 &gmac1m0_rx_bus2
-				 &gmac1m0_mii_clk
-				 &gmac1m0_mii_bus
-				 &gmac1m0_clkinout>;
-
+&gmac1 {
+	phy-mode = "rmii";
 	clock_in_out = "input";
-	assigned-clocks = <&cru SCLK_GMAC1_RX_TX>;
-	assigned-clock-parents = <&cru SCLK_GMAC1_MII_SPEED>;
-	assigned-clock-rates = <25000000>;  // 25MHz for 100Mb ethernet
+	snps,reset-gpio = <&gpio4 RK_PC2 GPIO_ACTIVE_LOW>;
+	snps,reset-active-low;
+	snps,reset-delays-us = <0 20000 100000>;
+	assigned-clocks = <&cru SCLK_GMAC1_RX_TX>, <&cru SCLK_GMAC1>;
+	assigned-clock-parents = <&cru SCLK_GMAC1_RMII_SPEED>, <&gmac1_clkin>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&gmac1m0_miim
+				 &gmac1m0_clkinout
+				 &gmac1m0_rx_bus2
+				 &gmac1m0_tx_bus2
+				 &gmac1m0_rx_er>;
+	phy-handle = <&rmii_phy1>;
+	status = "okay";
+};
 
-	tx_delay = <0x30>;  // 为你硬件合适的值
-	rx_delay = <0x30>;  // 为你硬件合适的值
-
-	phy-handle = <&mii_phy1>; // 修改对应的PHY标签
-	phy-supply = <&vcc_3v3>;
+&mdio1 {
+	rmii_phy1: phy@0 {
+		compatible = "ethernet-phy-ieee802.3-c22";
+		reg = <0x0>;
+	};
 };
 
 &i2s0_8ch {
