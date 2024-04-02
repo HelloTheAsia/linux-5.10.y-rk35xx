@@ -591,25 +591,29 @@
 };
 
 &gmac1 {
-	phy-mode = "rmii";
-	clock_in_out = "input";
-	snps,reset-gpio = <&gpio4 RK_PC2 GPIO_ACTIVE_LOW>;
+	phy-mode = "rgmii";
+	clock_in_out = "output";
+	snps,reset-gpio = <&gpio2 RK_PD1 GPIO_ACTIVE_LOW>;
 	snps,reset-active-low;
+	/* Reset time is 20ms, 100ms for rtl8211f */
 	snps,reset-delays-us = <0 20000 100000>;
 	assigned-clocks = <&cru SCLK_GMAC1_RX_TX>, <&cru SCLK_GMAC1>;
-	assigned-clock-parents = <&cru SCLK_GMAC1_RMII_SPEED>, <&gmac1_clkin>;
+	assigned-clock-parents = <&cru SCLK_GMAC1_RGMII_SPEED>;
+	assigned-clock-rates = <0>, <125000000>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&gmac1m0_miim
-				 &gmac1m0_clkinout
-				 &gmac1m0_rx_bus2
 				 &gmac1m0_tx_bus2
-				 &gmac1m0_rx_er>;
-	phy-handle = <&rmii_phy1>;
+				 &gmac1m0_rx_bus2
+				 &gmac1m0_rgmii_clk
+				 &gmac1m0_rgmii_bus>;
+	tx_delay = <0x4f>;
+	rx_delay = <0x26>;
+	phy-handle = <&rgmii_phy1>;
 	status = "okay";
 };
 
 &mdio1 {
-	rmii_phy1: phy@0 {
+	rgmii_phy1: phy@0 {
 		compatible = "ethernet-phy-ieee802.3-c22";
 		reg = <0x0>;
 	};
